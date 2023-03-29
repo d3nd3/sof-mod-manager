@@ -124,12 +124,12 @@ static gboolean on_configure_switcher (GtkWidget* self, GdkEventConfigure event,
 }
 #endif
 
-void loadTheme(char * theme)
+void loadCssFile(char * cssfile)
 {
 	// Create a new GtkCssProvider object
 	GtkCssProvider *provider = gtk_css_provider_new();
 	// Load the CSS file
-	GFile *file = g_file_new_for_path("themes/Orchis-Pink/gtk-3.0/gtk.css");
+	GFile *file = g_file_new_for_path(cssfile);
 	gtk_css_provider_load_from_file(provider, file, NULL);
 
 	// Apply the CSS theme to the default screen
@@ -139,8 +139,6 @@ void loadTheme(char * theme)
 	g_object_unref(file);
 }
 
-#include <glib.h>
-#include <gio/gio.h>
 
 void search_themes_in_dir(const gchar *path, std::vector<std::string> &themes) {
 	GDir *dir = g_dir_open(path, 0, NULL);
@@ -210,31 +208,15 @@ void on_theme_changed(GtkComboBox *widget, gpointer user_data) {
 }
 
 int main(int argc, char *argv[]) {
-
 	// GTK_THEME=Adwaita:dark
-	// putenv(("GTK_THEME=" + string("win32")).c_str());
 	// putenv("GTK_CSD=0");
-
 	g_setenv("GTK_DATA_PREFIX", "./gtk", TRUE);
 	gtk_init(&argc, &argv);
 
-#if 0
-	gchar ** themes;
-	gint num_found;
-	gtk_icon_theme_get_search_path ( gtk_icon_theme_get_default(), &themes,&num_found);
+	// starting theme
+	GtkSettings *settings = gtk_settings_get_default();
+	g_object_set(settings, "gtk-theme-name", "hackerer-main", NULL);
 
-	while ( *themes ) {
-		cout << "THeme : " << *themes << endl;
-		themes += 1;
-	}
-#endif
-	
-	// GtkSettings *settings = gtk_settings_get_default();
-	// const char* theme_name = "win32";
-	// g_object_set(settings, "gtk-theme-name", theme_name, NULL);
-
-	// loadTheme("themes/Orchis-Pink/gtk-3.0/gtk.css");
-	
 
 	// Create the main window
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -248,10 +230,6 @@ int main(int argc, char *argv[]) {
 	
 	gtk_window_set_default_size(GTK_WINDOW(window), 800,600);
 	gtk_window_set_title(GTK_WINDOW(window), "https://github.com/d3nd3/sof-mod-manager");
-
-
-	
-
 
 
 	stack = gtk_stack_new();
@@ -300,7 +278,7 @@ int main(int argc, char *argv[]) {
 	gtk_box_pack_start(GTK_BOX(all),stack,TRUE,TRUE, 0 );
 
 
-	// MainStyle();
+	MainStyle();
 
 	cout << "START width : " << current_width << " height : " << current_height << endl;
 
@@ -351,6 +329,7 @@ void MainStyle(void)
 	string style = R"(
 		window {
 			font-size: 16px;
+			font-weight: 600;
 		}
 		stackswitcher {
 
