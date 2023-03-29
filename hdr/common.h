@@ -2,6 +2,9 @@
 
 #include <string>
 #include <iostream>
+#include <stdlib.h>
+#include <vector>
+
 using namespace std;
 
 extern GtkWidget * stack;

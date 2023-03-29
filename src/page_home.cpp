@@ -56,7 +56,7 @@ PageHome::PageHome(std::string name) {
 	// Add to Stack
 	gtk_stack_add_titled(GTK_STACK(stack), outer_frame, css_name.c_str(), "HOME PAGE");
 	// STYLE
-	PageStyle();
+	// PageStyle();
 	
 }
 
@@ -64,7 +64,10 @@ PageHome::~PageHome(void) {
 	cout << "destructor called\n";
 }
 
-
+/*
+https://docs.gtk.org/gtk3/css-properties.html
+https://docs.gtk.org/gtk3/css-overview.html#selectors
+*/
 void PageHome::PageStyle(void) {
 
 	string style = R"(
