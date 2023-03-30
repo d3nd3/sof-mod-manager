@@ -52,7 +52,7 @@ PageAnalysis::PageAnalysis(std::string name) {
 
 	
 	// Add to Stack
-	gtk_stack_add_titled(GTK_STACK(stack), outer_frame, css_name.c_str(), "ANALYSIS PAGE");
+	gtk_stack_add_titled(GTK_STACK(stack), outer_frame, css_name.c_str(), "ANALYSIS");
 	// STYLE
 	// PageStyle();
 	
@@ -70,21 +70,6 @@ void PageAnalysis::PageStyle(void) {
 
 	string style = R"(
 		
-		#page_analysis {
-		    background-color: #000000;
-		}
-		#row1 {
-		    background-color: red;
-		}
-		#item0 {
-		    background-color: cyan;
-		}
-		#item1 {
-		    background-color: green;
-		}
-		#item2 {
-		    background-color: yellow;
-		}
 	)";
 
 	/*

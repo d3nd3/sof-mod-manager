@@ -75,6 +75,10 @@ The data is owned by the called function. == THEM
 
 */
 
+/*
+	In short, the size allocation of a GtkBox and its children is determined by several factors. If the homogeneous property of the GtkBox is set to TRUE, all its children will be given equal space. If it’s set to FALSE, the space allocation will depend on the minimum and natural sizes of its children. You can try setting the homogeneous property of the vertical GtkBox to TRUE to ensure that all its children are given equal space.
+*/
+
 
 /*
 
@@ -220,7 +224,7 @@ int main(int argc, char *argv[]) {
 
 	// Create the main window
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_widget_set_name(window,"manager");
+	
 	g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 	g_signal_connect(window,"size-allocate",G_CALLBACK(window_size_alloc_MAIN),NULL);
 
@@ -241,10 +245,13 @@ int main(int argc, char *argv[]) {
 	PageAnalysis page2("page_analysis");
 
 
-
+	// --------------------ALL---------------------------
 	GtkWidget * all = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_widget_set_name(all,"manager");
 	gtk_container_add(GTK_CONTAINER(window),all);
 
+
+	// ------------------------THEMES--------------------------------
 	GtkWidget *combo_box = gtk_combo_box_text_new();
 	std::vector<std::string> themes = get_available_themes();
 	for (const std::string &theme : themes) {
@@ -252,9 +259,8 @@ int main(int argc, char *argv[]) {
 	}
 	g_signal_connect(combo_box, "changed", G_CALLBACK(on_theme_changed), NULL);
 
-	
-
-	GtkWidget *outer_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+	// THEME OUTER_FRAME
+	GtkWidget *outer_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_pack_start(GTK_BOX(outer_frame),combo_box,FALSE,FALSE,0);
 	gtk_stack_add_titled(GTK_STACK(stack), outer_frame, "themes", "THEMES");
 
@@ -264,17 +270,42 @@ int main(int argc, char *argv[]) {
 	gtk_stack_set_visible_child_name(GTK_STACK(stack), "page_home");
 
 
-	GtkWidget * switcher = gtk_stack_switcher_new();
-	// g_signal_connect(window,"size-allocate",G_CALLBACK(window_size_alloc_SWITCHER),switcher);
-	gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher),GTK_STACK(stack));
+	//----------------------------------------TOP BAR-----------------------------------------
+	// all -> sw_container[switcher],stack
+	GtkWidget * sw_container = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+	gtk_widget_set_name(sw_container,"switch_container");
+	gtk_box_set_homogeneous(GTK_BOX(sw_container),TRUE);
 
+
+	GtkWidget * w_lab = gtk_label_new("SoF1 Mod Manager!");
+	gtk_box_pack_start(GTK_BOX(sw_container),w_lab,TRUE,TRUE,0);
+	gtk_label_set_justify(GTK_LABEL(w_lab),GTK_JUSTIFY_LEFT);
+	gtk_widget_set_halign(w_lab,GTK_ALIGN_START);
+	gtk_widget_set_valign(w_lab,GTK_ALIGN_CENTER);
+	
+	
+	// gtk_label_set_xalign(GTK_LABEL(w_lab),0.0);
+
+	GtkWidget * switcher = gtk_stack_switcher_new();
+	gtk_box_pack_start(GTK_BOX(sw_container),switcher,TRUE,TRUE,0);
+
+	// gtk_label_set_xalign(switcher,0.5);
 	gtk_widget_set_halign(switcher,GTK_ALIGN_CENTER);
 	gtk_widget_set_valign(switcher,GTK_ALIGN_CENTER);
 
 
+	// third fake item to allow middle item to be centered
+	GtkWidget* w_fake = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_pack_start(GTK_BOX(sw_container),w_fake,TRUE,TRUE,0);
+	
+
+	// g_signal_connect(window,"size-allocate",G_CALLBACK(window_size_alloc_SWITCHER),switcher);
+	gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(switcher),GTK_STACK(stack));
+
 	// box,child,   		 consume-free-space?, free-space-resizes-me?,   padding_len
 	// TabSwitcher(Menu) at top.
-	gtk_box_pack_start(GTK_BOX(all),switcher,FALSE,FALSE, 0 );
+	// INTO VERTICAL BOX
+	gtk_box_pack_start(GTK_BOX(all),sw_container,FALSE,FALSE, 0 );
 	gtk_box_pack_start(GTK_BOX(all),stack,TRUE,TRUE, 0 );
 
 
@@ -327,19 +358,53 @@ margin outside
 void MainStyle(void)
 {
 	string style = R"(
-		window {
-			font-size: 16px;
-			font-weight: 600;
+		combobox {
+			outline: none;
 		}
-		stackswitcher {
+		button {
+			outline: none;
+		}
+		#manager>box {
+			border-bottom-style: double;
+			border-bottom-width: 12px;
+		}
+		#manager box:backdrop, #manager button:backdrop {
+			border-color: shade(alpha(currentColor,0.32),0.8);
+		}
 
+		stackswitcher button:nth-child(even) {
+			background-clip: padding-box;
+			border-left-style: dotted;
+			border-left-color: #00FF00;
+			border-left-width: 8px;
+
+			border-right-style: dotted;
+			border-right-color: #00FF00;
+			border-right-width: 8px;
 		}
+
 		stackswitcher button {
-
+			outline: none;
+			border: none;
+			box-shadow: none;
 		}
-		stackswitcher button label {
 
+		window {
+			font-size: 20px;
 		}
+
+		stackswitcher {
+			font-size: 1.5em;
+		}
+
+		#switch_container>label {
+			font-size: 1.5em;
+		}
+
+		tooltip { 
+			font-size: 1.5em;
+		}
+
 	)";
 
 	GtkCssProvider *provider = gtk_css_provider_new();
