@@ -1,0 +1,74 @@
+# sof-mod-manager — system overview
+# Zones run left to right: entry points -> core -> state -> external.
+# Cross-zone links are zone-level so TALA keeps the children nested.
+# Style classes set strokes only, so light and dark stays readable.
+
+title: |md
+  # sof-mod-manager
+  A GTK3 window with two pages and a theme picker. It does not touch a SoF install yet.
+| {near: top-center}
+
+direction: right
+grid-columns: 2
+grid-rows: 2
+horizontal-gap: 260
+vertical-gap: 240
+
+entry: Entry points {
+  direction: down
+
+  main: main.cpp · gtk_init, maximized window, global stack, top bar
+  home: page_home.cpp · "SoF Instance" combo, Untrack, info popup
+  analysis: page_analysis.cpp · three spacer boxes, dumps widget tree
+  themepage: themes page · combo of every discoverable theme
+
+  main -> home: constructs PageHome and PageAnalysis
+  main -> themepage: adds the themes stack page
+}
+
+state: State {
+  direction: down
+
+  mem: tracked instances · combo box text, gone when the process exits
+  settings: GtkSettings · theme name in memory, never written to disk
+  prefix: GTK_DATA_PREFIX = "./gtk" · gitignored, resolved from cwd
+}
+
+core: Core {
+  direction: down
+
+  pages: page constructors · build a box, add_titled onto the stack
+  css: MainStyle · inline CSS for buttons, switcher borders, fonts
+  scan: get_available_themes · GResource names, then four dir scans
+  apply: on_theme_changed · sets gtk-theme-name on default settings
+  cssfile: loadCssFile · compiled but never called from anywhere
+
+  pages -> css: each page merges CSS into the screen
+  scan -> apply: picked name is handed to GtkSettings
+}
+
+ext: External {
+  direction: down
+
+  gtk: GTK 3 · widgets, CSS engine, GtkStack and GtkStackSwitcher
+  render: X11 or Win32 backend · cairo draw, Pango font sizing
+  themedirs: GResource builtins, XDG data dirs, ~/.themes, share/themes
+
+  render -> gtk: asks for size, paints what CSS resolved
+}
+
+entry -> core: builds the pages
+core -> state: only live state
+state -> ext: read at draw time
+
+classes: {
+  entry: {style: {stroke: "#2f6fbf"}}
+  core: {style: {stroke: "#2f8f5f"}}
+  state: {style: {stroke: "#a86a12"; stroke-dash: 3}}
+  ext: {style: {stroke: "#8a4fbf"; stroke-dash: 5}}
+}
+
+entry.class: entry
+core.class: core
+state.class: state
+ext.class: ext
